@@ -1,0 +1,4 @@
+*.gem
+*.iml
+Gemfile.lock
+/pki/
