@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
 	spec.name = 'acme-pki'
-	spec.version = '0.1.2'
+	spec.version = '0.1.3'
 	spec.authors = ['Aeris']
 	spec.email = ['aeris@imirhil.fr']
 	spec.summary = %q{Ruby client for Let’s Encrypt}

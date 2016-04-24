@@ -88,11 +88,9 @@ module Acme
 			key_info key
 		end
 
-		def generate_csr(csr, domains: nil, key: nil)
+		def generate_csr(csr, domains: [], key: nil)
 			key      = csr unless key
-			domains  = csr unless domains
-			domains  = [domains] if domains.is_a? String
-			domains  = domains.collect { |d| SimpleIDN.to_ascii d }
+			domains  = [csr, *domains].collect { |d| SimpleIDN.to_ascii d }
 			csr_file = self.csr csr
 			key_file = self.key key
 

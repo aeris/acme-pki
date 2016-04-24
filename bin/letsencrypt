@@ -18,11 +18,11 @@ case ARGV.shift
 		end
 		pki.generate_key ARGV.first, type: options.type
 	when 'csr'
-		options = OpenStruct.new
+		options = OpenStruct.new domains: []
 		OptionParser.new do |opts|
 			opts.banner = "Usage: #{__FILE__} csr <domain> [options]"
 			opts.on('-k [KEYFILE]', '--key [KEYFILE]', 'Key file') { |k| options.key = k }
-			opts.on('-d [DOMAINS]', '--domains [DOMAINS]', Array, 'Domains') { |ds| options.domains = ds }
+			opts.on('-d [DOMAIN]', '--domain [DOMAIN]', 'Domain') { |d| options.domains << d }
 		end.parse!
 		if ARGV.empty?
 			puts "A domain is required !"

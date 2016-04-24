@@ -32,6 +32,10 @@ Generate a certificate request in `example.bar.foo.csr`
 
 	letsencrypt csr foo.bar.example
 
+If you have multiple domains
+
+	letsencrypt csr foo.example -d bar.example -d baz.example
+
 ### Request certificate
 
 	Usage: letsencrypt crt <domain> [options]
