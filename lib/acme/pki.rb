@@ -221,10 +221,14 @@ module Acme
 
 			url = "http://#{domain}/.well-known/acme-challenge/#{filename}"
 			process "Test challenge for #{url}" do
-				response = Faraday.new do |conn|
-					conn.use FaradayMiddleware::FollowRedirects
-					conn.adapter Faraday.default_adapter
-				end.get url
+				response = begin
+					Faraday.new do |conn|
+						conn.use FaradayMiddleware::FollowRedirects
+						conn.adapter Faraday.default_adapter
+					end.get url
+				rescue => e
+				    raise Exception, e.message
+				end
 				raise Exception, "Got response code #{response.status}" unless response.success?
 				real_content = response.body
 				raise Exception, "Got #{real_content}, expected #{content}" unless real_content == content
