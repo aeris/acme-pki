@@ -5,6 +5,11 @@ Tiny PKI based on [Acme/client](https://github.com/unixcharles/acme-client).
 Licensed under [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
 ## Usage
+### Registration
+
+Registration is done automatically when call client.
+Just define `ACME_MAIL_REGISTRATION` environment variable before the first use (not need after that) with your mail address to use for registration. 
+
 ### Generate secret key
 
 	Usage: letsencrypt key <domain> [options]

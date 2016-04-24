@@ -26,10 +26,16 @@ module Acme
 			account_key_file = File.join @directory, account_key
 			@challenge_dir   = ENV['ACME_CHALLENGE'] || File.join(@directory, 'acme-challenge')
 
+			mail = ENV['ACME_MAIL_REGISTRATION']
 			register    = false
 			account_key = if File.exists? account_key_file
 							  open(account_key_file, 'r') { |f| OpenSSL::PKey.read f }
 						  else
+							  unless mail
+								  puts 'No registration key found.'.colorize :yellow
+								  puts 'Please define ACME_MAIL_REGISTRATION environment variable for registration'.colorize :red
+								  exit -1
+							  end
 							  process("Generating RSA 4096 bits account key into #{account_key_file}") do
 								  register    = true
 								  account_key = OpenSSL::PKey::RSA.new 4096
@@ -42,7 +48,7 @@ module Acme
 
 			if register
 				process("Registering account key #{account_key_file}") do
-					registration = @client.register contact: 'mailto:aeris+letsencrypt@imirhil.fr'
+					registration = @client.register contact: "mailto:#{mail}"
 					registration.agree_terms
 				end
 			end
