@@ -22,36 +22,15 @@ module Acme
 		DEFAULT_RENEW_DURATION = 60*60*24*30 # 1 month
 
 		def initialize(directory: Dir.pwd, account_key: DEFAULT_ACCOUNT_KEY, endpoint: DEFAULT_ENDPOINT)
-			@directory       = directory
-			account_key_file = File.join @directory, account_key
-			@challenge_dir   = ENV['ACME_CHALLENGE'] || File.join(@directory, 'acme-challenge')
-
-			mail = ENV['ACME_MAIL_REGISTRATION']
-			register    = false
-			account_key = if File.exists? account_key_file
-							  open(account_key_file, 'r') { |f| OpenSSL::PKey.read f }
-						  else
-							  unless mail
-								  puts 'No registration key found.'.colorize :yellow
-								  puts 'Please define ACME_MAIL_REGISTRATION environment variable for registration'.colorize :red
-								  exit -1
-							  end
-							  process("Generating RSA 4096 bits account key into #{account_key_file}") do
-								  register    = true
-								  account_key = OpenSSL::PKey::RSA.new 4096
-								  File.write account_key_file, account_key.to_pem
-								  account_key
-							  end
-						  end
-
-			@client = Acme::Client.new private_key: account_key, endpoint: endpoint
-
-			if register
-				process("Registering account key #{account_key_file}") do
-					registration = @client.register contact: "mailto:#{mail}"
-					registration.agree_terms
-				end
-			end
+			@directory        = directory
+			@challenge_dir    = ENV['ACME_CHALLENGE'] || File.join(@directory, 'acme-challenge')
+			@account_key_file = File.join @directory, account_key
+			@account_key      = if File.exists? @account_key_file
+									open(@account_key_file, 'r') { |f| OpenSSL::PKey.read f }
+								else
+									nil
+								end
+			@endpoint         = endpoint
 		end
 
 		def key(name)
@@ -64,6 +43,18 @@ module Acme
 
 		def crt(name)
 			file name, 'crt'
+		end
+
+		def register(mail)
+			process("Generating RSA 4096 bits account key into #{@account_key_file}") do
+				@account_key = OpenSSL::PKey::RSA.new 4096
+				File.write @account_key_file, @account_key.to_pem
+			end
+
+			process("Registering account key #{@account_key_file}") do
+				registration = client.register contact: "mailto:#{mail}"
+				registration.agree_terms
+			end
 		end
 
 		def generate_key(name, type: DEFAULT_KEY)
@@ -156,6 +147,15 @@ module Acme
 		end
 
 		private
+		def client
+			unless @account_key
+				puts 'No account key available'.colorize :yellow
+				puts 'Please register yourself before'.colorize :red
+				exit -1
+			end
+			@client ||= Acme::Client.new private_key: @account_key, endpoint: @endpoint
+		end
+
 		def process(line, io: STDOUT)
 			io.print "#{line}..."
 			io.flush
@@ -203,7 +203,7 @@ module Acme
 		end
 
 		def authorize(domain)
-			authorization = @client.authorize domain: domain
+			authorization = client.authorize domain: domain
 			challenge     = authorization.http01
 
 			unless Dir.exists? @challenge_dir
@@ -252,7 +252,7 @@ module Acme
 			domains.each { |d| authorize d }
 
 			crt = process "Generating CRT #{crt} from CSR #{csr_file}" do
-				certificate = @client.new_certificate csr
+				certificate = client.new_certificate csr
 				File.write crt, certificate.fullchain_to_pem
 				OpenSSL::X509::Certificate.new certificate.to_pem
 			end

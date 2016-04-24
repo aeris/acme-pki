@@ -1,14 +1,22 @@
 #!/usr/bin/env ruby
 require 'acme/pki'
 
-
 pki = Acme::PKI.new
 
 case ARGV.shift
+	when 'register'
+		OptionParser.new do |opts|
+			opts.banner = "Usage: #{File.basename __FILE__} register <email>"
+		end.parse!
+		if ARGV.empty?
+			puts "An email address is required !"
+			exit -1
+		end
+		pki.register ARGV.first
 	when 'key'
 		options = OpenStruct.new type: Acme::PKI::DEFAULT_KEY
 		OptionParser.new do |opts|
-			opts.banner = "Usage: #{__FILE__} key <domain> [options]"
+			opts.banner = "Usage: #{File.filename __FILE__} key <domain> [options]"
 			opts.on('-r [KEYSIZE]', '--rsa [KEYSIZE]', 'RSA key, key size') { |k| options.type = [:rsa, k.to_i] }
 			opts.on('-e [CURVE]', '--ecc [CURVE]', 'ECC key, curve') { |k| options.type = [:ecc, k] }
 		end.parse!
@@ -20,7 +28,7 @@ case ARGV.shift
 	when 'csr'
 		options = OpenStruct.new domains: []
 		OptionParser.new do |opts|
-			opts.banner = "Usage: #{__FILE__} csr <domain> [options]"
+			opts.banner = "Usage: #{File.basename __FILE__} csr <domain> [options]"
 			opts.on('-k [KEYFILE]', '--key [KEYFILE]', 'Key file') { |k| options.key = k }
 			opts.on('-d [DOMAIN]', '--domain [DOMAIN]', 'Domain') { |d| options.domains << d }
 		end.parse!
@@ -32,7 +40,7 @@ case ARGV.shift
 	when 'crt'
 		options = OpenStruct.new
 		OptionParser.new do |opts|
-			opts.banner = "Usage: #{__FILE__} crt <domain> [options]"
+			opts.banner = "Usage: #{File.basename __FILE__} crt <domain> [options]"
 			opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
 		end.parse!
 		if ARGV.empty?
@@ -43,7 +51,7 @@ case ARGV.shift
 	when 'renew'
 		options = OpenStruct.new
 		OptionParser.new do |opts|
-			opts.banner = "Usage: #{__FILE__} renew <domain> [options]"
+			opts.banner = "Usage: #{File.basename __FILE__} renew <domain> [options]"
 			opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
 		end.parse!
 		if ARGV.empty?
@@ -54,7 +62,7 @@ case ARGV.shift
 	when 'info'
 		type = :key
 		OptionParser.new do |opts|
-			opts.banner = "Usage: #{__FILE__} info <domain> [options]"
+			opts.banner = "Usage: #{File.basename __FILE__} info <domain> [options]"
 			opts.on('-k', '--key', 'Key information') { type = :key }
 			opts.on('-c', '--crt', 'Certificate information') { type = :crt }
 		end.parse!

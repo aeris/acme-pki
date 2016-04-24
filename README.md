@@ -7,8 +7,7 @@ Licensed under [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.en.html).
 ## Usage
 ### Registration
 
-Registration is done automatically when call client.
-Just define `ACME_MAIL_REGISTRATION` environment variable before the first use (not need after that) with your mail address to use for registration. 
+	Usage: letsencrypt register <email>
 
 ### Generate secret key
 
