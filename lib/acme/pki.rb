@@ -147,7 +147,7 @@ module Acme
 				end
 			end
 
-			self.internal_generate_crt crt, csr: csr
+			internal_generate_crt crt, csr: csr
 			true
 		end
 

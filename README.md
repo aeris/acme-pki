@@ -2,7 +2,7 @@
 
 Tiny PKI based on [Acme/client](https://github.com/unixcharles/acme-client).
 
-Licensed under [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html).
+Licensed under [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
 ## Usage
 ### Generate secret key
@@ -47,7 +47,7 @@ Renew the `example.bar.foo.crt` if needed (default is 30d before expiration).
 
 	letsencrypt renew foo.bar.example
 
-If certificate was renewed, return code is 1 else 0, for post-action on crontab for example
+If certificate was renewed, return code is 0 else 1, for post-action on crontab for example
 
 	#!/bin/bash
 	cd /etc/ssl/private
