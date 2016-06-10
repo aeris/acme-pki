@@ -15,22 +15,23 @@ module Acme
 	class PKI
 		include Information
 
-		DEFAULT_ENDPOINT       = ENV['ACME_ENDPOINT'] || 'https://acme-v01.api.letsencrypt.org/'
-		DEFAULT_ACCOUNT_KEY    = ENV['ACME_ACCOUNT_KEY'] || 'account.key'
+		DEFAULT_ENDPOINT       = 'https://acme-v01.api.letsencrypt.org/'
+		DEFAULT_ACCOUNT_KEY    = 'account.key'
+		DEFAULT_CHALLENGE_DIR  = 'acme-challenge'
 		DEFAULT_KEY            = [:ecc, 'secp384r1']
 		#DEFAULT_KEY            = [:rsa, 4096]
 		DEFAULT_RENEW_DURATION = 60*60*24*30 # 1 month
 
-		def initialize(directory: Dir.pwd, account_key: DEFAULT_ACCOUNT_KEY, endpoint: DEFAULT_ENDPOINT)
+		def initialize(directory: Dir.pwd, account_key: nil, endpoint: nil, challenge_dir: nil)
 			@directory        = directory
-			@challenge_dir    = ENV['ACME_CHALLENGE'] || File.join(@directory, 'acme-challenge')
-			@account_key_file = File.join @directory, account_key
+			@challenge_dir    = challenge_dir || ENV['ACME_CHALLENGE'] || File.join(@directory, DEFAULT_CHALLENGE_DIR)
+			@account_key_file = account_key || ENV['ACME_ACCOUNT_KEY'] || File.join(@directory, DEFAULT_ACCOUNT_KEY)
 			@account_key      = if File.exists? @account_key_file
 									open(@account_key_file, 'r') { |f| OpenSSL::PKey.read f }
 								else
 									nil
 								end
-			@endpoint         = endpoint
+			@endpoint         = endpoint || ENV['ACME_ENDPOINT'] || DEFAULT_ENDPOINT
 		end
 
 		def key(name)
