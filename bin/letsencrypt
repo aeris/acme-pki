@@ -16,7 +16,7 @@ case ARGV.shift
 	when 'key'
 		options = OpenStruct.new type: Acme::PKI::DEFAULT_KEY
 		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.filename __FILE__} key <domain> [options]"
+			opts.banner = "Usage: #{File.basename __FILE__} key <domain> [options]"
 			opts.on('-r [KEYSIZE]', '--rsa [KEYSIZE]', 'RSA key, key size') { |k| options.type = [:rsa, k.to_i] }
 			opts.on('-e [CURVE]', '--ecc [CURVE]', 'ECC key, curve') { |k| options.type = [:ecc, k] }
 		end.parse!
