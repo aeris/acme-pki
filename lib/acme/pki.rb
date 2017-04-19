@@ -10,6 +10,7 @@ require 'simpleidn'
 
 require 'acme/pki/monkey_patch'
 require 'acme/pki/information'
+require 'acme/pki/version'
 
 module Acme
 	class PKI
