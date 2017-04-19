@@ -3,7 +3,30 @@ require 'acme/pki'
 
 pki = Acme::PKI.new
 
+MYNAME = File.basename($0)
+
+HELP = <<-"EOTEXT"
+#{MYNAME} v#{Acme::PKI::VERSION}
+
+Available Commands:
+crt
+csr
+help
+info
+key
+register
+renew
+EOTEXT
+
+#if nothing, force help
+if ARGV.length == 0
+  ARGV << "help"
+end
+
 case ARGV.shift
+  when /help|-[hH]|--help/
+    puts HELP
+    exit 0
 	when 'register'
 		OptionParser.new do |opts|
 			opts.banner = "Usage: #{File.basename __FILE__} register <email>"
