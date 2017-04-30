@@ -1,0 +1,5 @@
+module Acme
+	class PKI
+		VERSION = '0.1.4'
+	end
+end

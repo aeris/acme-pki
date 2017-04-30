@@ -1,13 +1,14 @@
-# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
+require 'acme/pki/version'
+
 Gem::Specification.new do |spec|
 	spec.name = 'acme-pki'
-	spec.version = '0.1.4'
+	spec.version = Acme::PKI::VERSION
 	spec.authors = ['Aeris']
 	spec.email = ['aeris@imirhil.fr']
-	spec.summary = %q{Ruby client for Let’s Encrypt}
+	spec.summary = %q{Ruby client for Let's Encrypt}
 	spec.description = %q{Manage your keys, requests and certificates.}
 	spec.homepage = 'https://github.com/aeris/acme-pki/'
 	spec.license = 'AGPL-3.0+'

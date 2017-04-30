@@ -1,4 +1,7 @@
 *.gem
 *.iml
+*.key
+*.pem
+*.crt
+*.csr
 Gemfile.lock
-/pki/
