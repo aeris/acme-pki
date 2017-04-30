@@ -17,11 +17,12 @@ module Acme
 		include Information
 
 		DEFAULT_ENDPOINT       = ENV['ACME_ENDPOINT'] || 'https://acme-v01.api.letsencrypt.org/'
+		DEFAULT_DIRECTORY      = ENV['ACME_DIRECTORY'] || Dir.pwd
 		DEFAULT_ACCOUNT_KEY    = ENV['ACME_ACCOUNT_KEY'] || 'account.key'
-		DEFAULT_KEY            = [:ecc, 'prime256v1']
+		DEFAULT_KEY            = [:ecc, 'prime256v1'].freeze
 		DEFAULT_RENEW_DURATION = 60 * 60 * 24 * 30 # 1 month
 
-		def initialize(directory: Dir.pwd, account_key: DEFAULT_ACCOUNT_KEY, endpoint: DEFAULT_ENDPOINT)
+		def initialize(directory: DEFAULT_DIRECTORY, account_key: DEFAULT_ACCOUNT_KEY, endpoint: DEFAULT_ENDPOINT)
 			@directory        = directory
 			@challenge_dir    = ENV['ACME_CHALLENGE'] || File.join(@directory, 'acme-challenge')
 			@account_key_file = File.join @directory, account_key
@@ -227,7 +228,7 @@ module Acme
 						conn.adapter Faraday.default_adapter
 					end.get url
 				rescue => e
-				    raise Exception, e.message
+					raise Exception, e.message
 				end
 				raise Exception, "Got response code #{response.status}" unless response.success?
 				real_content = response.body

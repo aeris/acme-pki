@@ -3,7 +3,7 @@ require 'acme/pki'
 
 pki = Acme::PKI.new
 
-MYNAME = File.basename($0)
+MYNAME = File.basename $PROGRAM_NAME
 
 HELP = <<-"EOTEXT"
 #{MYNAME} v#{Acme::PKI::VERSION}
@@ -18,15 +18,13 @@ register
 renew
 EOTEXT
 
-#if nothing, force help
-if ARGV.length == 0
-  ARGV << "help"
-end
+# if nothing, force help
+ARGV << 'help' if ARGV.length.zero?
 
 case ARGV.shift
-  when /help|-[hH]|--help/
-    puts HELP
-    exit 0
+	when /help|-[hH]|--help/
+		puts HELP
+		exit 0
 	when 'register'
 		OptionParser.new do |opts|
 			opts.banner = "Usage: #{File.basename __FILE__} register <email>"
@@ -44,7 +42,7 @@ case ARGV.shift
 			opts.on('-e [CURVE]', '--ecc [CURVE]', 'ECC key, curve') { |k| options.type = [:ecc, k] }
 		end.parse!
 		if ARGV.empty?
-			puts "A domain is required !"
+			puts 'A domain is required !'
 			exit -1
 		end
 		pki.generate_key ARGV.first, type: options.type
@@ -56,7 +54,7 @@ case ARGV.shift
 			opts.on('-d [DOMAIN]', '--domain [DOMAIN]', 'Domain') { |d| options.domains << d }
 		end.parse!
 		if ARGV.empty?
-			puts "A domain is required !"
+			puts 'A domain is required !'
 			exit -1
 		end
 		pki.generate_csr ARGV.first, key: options.key, domains: options.domains
@@ -67,7 +65,7 @@ case ARGV.shift
 			opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
 		end.parse!
 		if ARGV.empty?
-			puts "A domain is required !"
+			puts 'A domain is required !'
 			exit -1
 		end
 		pki.generate_crt ARGV.first, csr: options.csr
@@ -78,7 +76,7 @@ case ARGV.shift
 			opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
 		end.parse!
 		if ARGV.empty?
-			puts "A domain is required !"
+			puts 'A domain is required !'
 			exit -1
 		end
 		exit pki.renew(ARGV.first, csr: options.csr) ? 0 : 1
@@ -90,7 +88,7 @@ case ARGV.shift
 			opts.on('-c', '--crt', 'Certificate information') { type = :crt }
 		end.parse!
 		if ARGV.empty?
-			puts "A domain is required !"
+			puts 'A domain is required !'
 			exit -1
 		end
 		case type
