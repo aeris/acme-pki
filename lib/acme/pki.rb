@@ -17,9 +17,8 @@ module Acme
 
 		DEFAULT_ENDPOINT       = ENV['ACME_ENDPOINT'] || 'https://acme-v01.api.letsencrypt.org/'
 		DEFAULT_ACCOUNT_KEY    = ENV['ACME_ACCOUNT_KEY'] || 'account.key'
-		DEFAULT_KEY            = [:ecc, 'secp384r1']
-		#DEFAULT_KEY            = [:rsa, 4096]
-		DEFAULT_RENEW_DURATION = 60*60*24*30 # 1 month
+		DEFAULT_KEY            = [:ecc, 'prime256v1']
+		DEFAULT_RENEW_DURATION = 60 * 60 * 24 * 30 # 1 month
 
 		def initialize(directory: Dir.pwd, account_key: DEFAULT_ACCOUNT_KEY, endpoint: DEFAULT_ENDPOINT)
 			@directory        = directory
