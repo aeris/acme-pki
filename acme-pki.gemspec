@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
 	spec.name = 'acme-pki'
-	spec.version = '0.1.3'
+	spec.version = '0.1.4'
 	spec.authors = ['Aeris']
 	spec.email = ['aeris@imirhil.fr']
 	spec.summary = %q{Ruby client for Let’s Encrypt}
@@ -19,8 +19,8 @@ Gem::Specification.new do |spec|
 
 	spec.add_development_dependency 'bundler', '~> 1.11'
 
-	spec.add_dependency 'acme-client', '~> 0.3.1'
-	spec.add_dependency 'faraday_middleware', '~> 0.10.0'
-	spec.add_dependency 'colorize', '~> 0.7.7'
+	spec.add_dependency 'acme-client', '~> 0.5.5'
+	spec.add_dependency 'faraday_middleware', '~> 0.11.0.1'
+	spec.add_dependency 'colorize', '~> 0.8.1'
 	spec.add_dependency 'simpleidn', '~> 0.0.7'
 end
