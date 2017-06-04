@@ -5,7 +5,19 @@ module Acme
 		module Information
 			def key_info(key, tab: 0)
 				key = open(key, 'r') { |f| OpenSSL::PKey.read f } unless key.is_a? OpenSSL::PKey::PKey
-				der = key.to_der
+
+				der = case key
+						  when OpenSSL::PKey::EC
+							  puts "\t" * (tab) + "#{'Key'.colorize :red} : ECC #{key.group.curve_name}"
+
+							  point          = key.public_key
+							  pub            = OpenSSL::PKey::EC.new point.group
+							  pub.public_key = point
+							  pub
+						  when OpenSSL::PKey::RSA
+							  puts "\t" * (tab) + "#{'Key'.colorize :red} : RSA #{key.n.num_bits} bits"
+							  key.public_key
+					  end.to_der
 
 				fingerprint der, tab: tab
 
@@ -61,25 +73,25 @@ module Acme
 					puts "Fetch certificate #{issuer} from #{uri}"
 					file = Digest::MD5.hexdigest uri
 					file = file File.join 'cache', file
-					dir = File.dirname file
+					dir  = File.dirname file
 					FileUtils.mkpath dir unless Dir.exist? dir
-					crt  = if File.exist? file
-							   open(file, 'r') { |f| OpenSSL::X509::Certificate.new f }
-						   else
-							   crt = Faraday.get uri
-							   break unless crt.success?
-							   crt = crt.body
+					crt = if File.exist? file
+							  open(file, 'r') { |f| OpenSSL::X509::Certificate.new f }
+						  else
+							  crt = Faraday.get uri
+							  break unless crt.success?
+							  crt = crt.body
 
-							   crt = begin
-								   OpenSSL::X509::Certificate.new crt
-							   rescue
-								   pkcs7 = OpenSSL::PKCS7.new crt
-								   pkcs7.certificates.first
-							   end
+							  crt = begin
+								  OpenSSL::X509::Certificate.new crt
+							  rescue
+								  pkcs7 = OpenSSL::PKCS7.new crt
+								  pkcs7.certificates.first
+							  end
 
-							   File.write file, crt.to_pem
-							   crt
-						   end
+							  File.write file, crt.to_pem
+							  crt
+						  end
 
 					subject = crt.subject
 					puts "Warning : expecting #{issuer}, get #{subject}".colorize :magenta unless subject == issuer
