@@ -35,7 +35,7 @@ case ARGV.shift
 		end
 		pki.register ARGV.first
 	when 'key'
-		options = OpenStruct.new type: Acme::PKI::DEFAULT_KEY
+		options = OpenStruct.new type: Acme::PKI::DEFAULT_KEY_TYPE
 		OptionParser.new do |opts|
 			opts.banner = "Usage: #{File.basename __FILE__} key <domain> [options]"
 			opts.on('-r [KEYSIZE]', '--rsa [KEYSIZE]', 'RSA key, key size') { |k| options.type = [:rsa, k.to_i] }
