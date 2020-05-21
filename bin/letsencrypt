@@ -44,7 +44,7 @@ case ARGV.shift
 		if ARGV.empty?
 			puts 'A domain is required !'
 			exit -1
-		end
+    end
 		pki.generate_key ARGV.first, type: options.type
 	when 'csr'
 		options = OpenStruct.new domains: []

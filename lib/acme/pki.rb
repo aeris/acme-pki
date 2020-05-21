@@ -53,7 +53,7 @@ module Acme
     end
 
     def register(mail)
-      @account_key_file, @account_key = self.generate_key DEFAULT_ACCOUNT_KEY, DEFAULT_ACCOUNT_KEY_TYPE, 'key'
+      @account_key_file, @account_key = self.generate_key DEFAULT_ACCOUNT_KEY, 'key', type: DEFAULT_ACCOUNT_KEY_TYPE
       tos                             = self.client.meta['termsOfService']
       $stdout.print "Are you agree with Let's Encrypt terms of service available at #{tos}? [yN] "
       $stdout.flush
@@ -64,7 +64,7 @@ module Acme
       end
     end
 
-    def generate_key(name, type = DEFAULT_KEY_TYPE, extension = 'pem')
+    def generate_key(name, extension = 'pem', type: DEFAULT_KEY_TYPE)
       key_file   = self.key name, extension
       type, size = type
 
@@ -238,13 +238,13 @@ module Acme
       url = "http://#{domain}/.well-known/acme-challenge/#{filename}"
       self.process "Test challenge for #{url.colorize :yellow}" do
         response = begin
-          Faraday.new do |conn|
-            conn.use FaradayMiddleware::FollowRedirects
-            conn.adapter Faraday.default_adapter
-          end.get url
-        rescue => e
-          raise Exception, e.message
-        end
+                     Faraday.new do |conn|
+                       conn.use FaradayMiddleware::FollowRedirects
+                       conn.adapter Faraday.default_adapter
+                     end.get url
+                   rescue => e
+                     raise Exception, e.message
+                   end
         raise Exception, "Got response code #{response.status.to_s.colorize :red}" unless response.success?
         real_content = response.body
         raise Exception, "Got #{real_content.colorize :red}, expected #{content.colorize :green}" unless real_content == content
