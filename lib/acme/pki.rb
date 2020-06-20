@@ -89,13 +89,19 @@ module Acme
       [key_file, key]
     end
 
-    def generate_csr(csr, domains: [], key: nil)
-      key      = csr unless key
-      domains  = [csr, *domains].collect { |d| SimpleIDN.to_ascii d }
+    def generate_csr(csr, domains: [], add: [], remove: [], key: nil)
+      key = csr unless key
       csr_file = self.csr csr
       key_file = self.key key
-
       self.generate_key key unless File.exist? key_file
+
+      domains = if add.empty? && remove.empty?
+                  [csr, *domains]
+                else
+                  tmp      = OpenSSL::X509::Request.new File.read csr_file
+                  domains = self.domains tmp
+                  domains - remove + add
+                end.collect { |d| SimpleIDN.to_ascii d }
 
       self.process "Generating CSR for #{domains.join ', '} with key #{key_file} into #{csr_file}" do
         key_file    = open(key_file, 'r') { |f| OpenSSL::PKey.read f }

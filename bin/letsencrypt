@@ -22,79 +22,82 @@ EOTEXT
 ARGV << 'help' if ARGV.length.zero?
 
 case ARGV.shift
-	when /help|-[hH]|--help/
-		puts HELP
-		exit 0
-	when 'register'
-		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.basename __FILE__} register <email>"
-		end.parse!
-		if ARGV.empty?
-			puts "An email address is required !"
-			exit -1
-		end
-		pki.register ARGV.first
-	when 'key'
-		options = OpenStruct.new type: Acme::PKI::DEFAULT_KEY_TYPE
-		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.basename __FILE__} key <domain> [options]"
-			opts.on('-r [KEYSIZE]', '--rsa [KEYSIZE]', 'RSA key, key size') { |k| options.type = [:rsa, k.to_i] }
-			opts.on('-e [CURVE]', '--ecc [CURVE]', 'ECC key, curve') { |k| options.type = [:ecc, k] }
-		end.parse!
-		if ARGV.empty?
-			puts 'A domain is required !'
-			exit -1
-    end
-		pki.generate_key ARGV.first, type: options.type
-	when 'csr'
-		options = OpenStruct.new domains: []
-		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.basename __FILE__} csr <domain> [options]"
-			opts.on('-k [KEYFILE]', '--key [KEYFILE]', 'Key file') { |k| options.key = k }
-			opts.on('-d [DOMAIN]', '--domain [DOMAIN]', 'Domain') { |d| options.domains << d }
-		end.parse!
-		if ARGV.empty?
-			puts 'A domain is required !'
-			exit -1
-		end
-		pki.generate_csr ARGV.first, key: options.key, domains: options.domains
-	when 'crt'
-		options = OpenStruct.new
-		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.basename __FILE__} crt <domain> [options]"
-			opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
-		end.parse!
-		if ARGV.empty?
-			puts 'A domain is required !'
-			exit -1
-		end
-		pki.generate_crt ARGV.first, csr: options.csr
-	when 'renew'
-		options = OpenStruct.new
-		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.basename __FILE__} renew <domain> [options]"
-			opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
-		end.parse!
-		if ARGV.empty?
-			puts 'A domain is required !'
-			exit -1
-		end
-		exit pki.renew(ARGV.first, csr: options.csr) ? 0 : 1
-	when 'info'
-		type = :key
-		OptionParser.new do |opts|
-			opts.banner = "Usage: #{File.basename __FILE__} info <domain> [options]"
-			opts.on('-k', '--key', 'Key information') { type = :key }
-			opts.on('-c', '--crt', 'Certificate information') { type = :crt }
-		end.parse!
-		if ARGV.empty?
-			puts 'A domain is required !'
-			exit -1
-		end
-		case type
-			when :key
-				pki.key_info pki.key ARGV.first
-			when :crt
-				pki.chain_info pki.crt ARGV.first
-		end
+when /help|-[hH]|--help/
+  puts HELP
+  exit 0
+when 'register'
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename __FILE__} register <email>"
+  end.parse!
+  if ARGV.empty?
+    puts "An email address is required !"
+    exit -1
+  end
+  pki.register ARGV.first
+when 'key'
+  options = OpenStruct.new type: Acme::PKI::DEFAULT_KEY_TYPE
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename __FILE__} key <domain> [options]"
+    opts.on('-r [KEYSIZE]', '--rsa [KEYSIZE]', 'RSA key, key size') { |k| options.type = [:rsa, k.to_i] }
+    opts.on('-e [CURVE]', '--ecc [CURVE]', 'ECC key, curve') { |k| options.type = [:ecc, k] }
+  end.parse!
+  if ARGV.empty?
+    puts 'A domain is required !'
+    exit -1
+  end
+  pki.generate_key ARGV.first, type: options.type
+when 'csr'
+  options = OpenStruct.new domains: [], adds: [], removes: []
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename __FILE__} csr <domain> [options]"
+    opts.on('-k [KEYFILE]', '--key [KEYFILE]', 'Key file') { |k| options.key = k }
+    opts.on('-d [DOMAIN]', '--domain [DOMAIN]', 'Domain') { |d| options.domains << d }
+    opts.on('-a [DOMAIN]', '--add [DOMAIN]', 'Add domain') { |d| options.adds << d }
+    opts.on('-r [DOMAIN]', '--remove [DOMAIN]', 'Remove domain') { |d| options.removes << d }
+  end.parse!
+  if ARGV.empty?
+    puts 'A domain is required !'
+    exit -1
+  end
+  pki.generate_csr ARGV.first, key: options.key, domains: options.domains,
+                   add:             options.adds, remove: options.removes
+when 'crt'
+  options = OpenStruct.new
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename __FILE__} crt <domain> [options]"
+    opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
+  end.parse!
+  if ARGV.empty?
+    puts 'A domain is required !'
+    exit -1
+  end
+  pki.generate_crt ARGV.first, csr: options.csr
+when 'renew'
+  options = OpenStruct.new
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename __FILE__} renew <domain> [options]"
+    opts.on('-c [CSR]', '--csr [CSR]', 'CSR file') { |c| options.csr = c }
+  end.parse!
+  if ARGV.empty?
+    puts 'A domain is required !'
+    exit -1
+  end
+  exit pki.renew(ARGV.first, csr: options.csr) ? 0 : 1
+when 'info'
+  type = :key
+  OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename __FILE__} info <domain> [options]"
+    opts.on('-k', '--key', 'Key information') { type = :key }
+    opts.on('-c', '--crt', 'Certificate information') { type = :crt }
+  end.parse!
+  if ARGV.empty?
+    puts 'A domain is required !'
+    exit -1
+  end
+  case type
+  when :key
+    pki.key_info pki.key ARGV.first
+  when :crt
+    pki.chain_info pki.crt ARGV.first
+  end
 end
